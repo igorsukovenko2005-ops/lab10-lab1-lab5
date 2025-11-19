@@ -1,0 +1,131 @@
+#include "pch.h"
+using namespace System;
+void PrintTableHeader(array<String^>^ cols)
+{
+    for each(String ^ h in cols)
+        Console::Write("{0,15}", h);
+    Console::WriteLine();
+}
+void PrintMatrixOnly(String^ title, array<double, 2>^ A)
+{
+    Console::WriteLine(title);
+    int n = A->GetLength(0), m = A->GetLength(1);
+
+    for (int i = 0; i < n; ++i)
+    {
+        for (int j = 0; j < m; ++j)
+            Console::Write("{0,8}", A[i, j]);
+        Console::WriteLine();
+    }
+}
+void Task1_DriversWage()
+{
+    Console::WriteLine(L"Завдання 1 Варіант 14: Розрахунок виплат водіїв\n");
+    Console::Write(L"Введіть вартість 1 км C: ");
+    String^ s = Console::ReadLine();
+    s = s->Replace(',', '.');
+    double C;
+    if (!Double::TryParse(
+        s,
+        System::Globalization::NumberStyles::Any,
+        System::Globalization::CultureInfo::InvariantCulture,
+        C))
+    {
+        Console::WriteLine(L"Помилка введення C. Потрібно ввести число.");
+        return;
+    }
+    array<int>^ N = gcnew array<int>{ 101, 102, 103, 104, 105, 106 };
+    array<double>^ P = gcnew array<double>{ 12.5, 8.0, 20.0, 15.2, 9.7, 13.4 };
+    array<double>^ L = gcnew array<double>{ 180, 450, 120, 320, 200, 90 };
+
+    int M = N->Length;
+    array<double>^ Pay = gcnew array<double>(M);
+
+    for (int i = 0; i < M; ++i)
+        Pay[i] = C * P[i] * L[i];
+
+    Console::WriteLine(L"\nВартість 1км: C = {0} грн/км\n", C);
+
+    PrintTableHeader(gcnew array<String^>{
+        L"Таб№", L"Вага P(т)", L"Відстань L(км)", L"До виплати(грн)" });
+
+    for (int i = 0; i < M; ++i)
+        Console::WriteLine("{0,15}{1,15:F2}{2,15:F2}{3,15:F2}",
+            N[i], P[i], L[i], Pay[i]);
+
+    Console::WriteLine();
+}
+array<double, 2>^ SortRowsByRowMin(array<double, 2>^ A)
+{
+    int n = A->GetLength(0), m = A->GetLength(1);
+
+    array<double>^ rowMin = gcnew array<double>(n);
+    for (int i = 0; i < n; ++i)
+    {
+        double mn = A[i, 0];
+        for (int j = 1; j < m; ++j)
+            mn = System::Math::Min(mn, A[i, j]);
+        rowMin[i] = mn;
+    }
+
+    array<int>^ idx = gcnew array<int>(n);
+    for (int i = 0; i < n; ++i)
+        idx[i] = i;
+    for (int i = 1; i < n; ++i)
+    {
+        int key = idx[i];
+        double keyVal = rowMin[key];
+        int k = i - 1;
+
+        while (k >= 0 && rowMin[idx[k]] > keyVal)
+        {
+            idx[k + 1] = idx[k];
+            --k;
+        }
+        idx[k + 1] = key;
+    }
+
+    array<double, 2>^ B = gcnew array<double, 2>(n, m);
+    for (int i = 0; i < n; ++i)
+        for (int j = 0; j < m; ++j)
+            B[i, j] = A[idx[i], j];
+
+    return B;
+}
+void Task2_RowReorderByRowMin()
+{
+    Console::WriteLine(L"Завдання 2 Варіант 14: Перестановка рядків за мінімальним значенням\n");
+
+    Console::Write(L"Введіть кількість рядків N: ");
+    int n = Convert::ToInt32(Console::ReadLine());
+
+    Console::Write(L"Введіть кількість стовпців M: ");
+    int m = Convert::ToInt32(Console::ReadLine());
+    Console::WriteLine();
+
+    array<double, 2>^ A = gcnew array<double, 2>(n, m);
+    Random^ rnd = gcnew Random();
+
+    for (int i = 0; i < n; ++i)
+        for (int j = 0; j < m; ++j)
+            A[i, j] = rnd->Next(-10, 21);
+
+    PrintMatrixOnly(L"Початкова матриця:", A);
+
+    auto B = SortRowsByRowMin(A);
+
+    Console::WriteLine();
+    PrintMatrixOnly(L"Матриця після сортування:", B);
+    Console::WriteLine();
+}
+int main(array<System::String^>^ args)
+{
+    System::Console::OutputEncoding = System::Text::Encoding::UTF8;
+
+    Task1_DriversWage();
+    Task2_RowReorderByRowMin();
+
+    Console::WriteLine(L"\nНатисніть будь-яку клавішу...");
+    Console::ReadKey(true);
+    return 0;
+}
