@@ -1,0 +1,30 @@
+#include "pch.h"
+#include <iostream>
+#include <string>
+#include <Windows.h>
+
+using namespace System;
+
+String^ ReverseString(String^ s)
+{
+    if (s == nullptr) return nullptr;
+    array<wchar_t>^ chars = s->ToCharArray();
+    System::Array::Reverse(chars);
+    return gcnew String(chars);
+}
+
+int main(array<System::String^>^ args)
+{
+    Console::OutputEncoding = System::Text::Encoding::UTF8;
+
+    Console::WriteLine(L"Розвернути символи у рядку.");
+    Console::Write(L"Введіть рядок: ");
+    String^ input = Console::ReadLine();
+
+    String^ reversed = ReverseString(input);
+    Console::WriteLine(L"Результат: {0}", reversed);
+
+    Console::WriteLine(L"\nНатисніть будь-яку клавішу...");
+    Console::ReadKey(true);
+    return 0;
+}
